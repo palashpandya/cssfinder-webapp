@@ -7,23 +7,44 @@ on:
 jobs:
   build-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Authenticate to GCP
+        id: auth
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+      # Authenticates Docker directly without needing the full gcloud SDK
+      - name: Docker Auth
+        uses: docker/login-action@v3
+        with:
+          registry: us-central1-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
 
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+      # Using the build-push action enables automatic GitHub Actions caching
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            us-central1-docker.pkg.dev/cssfinder-gilbert/cssfinder-gilbert-repo/flask-app:${{ github.sha }}
+            us-central1-docker.pkg.dev/cssfinder-gilbert/cssfinder-gilbert-repo/flask-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Build and push
-        run: |
-          IMAGE_URI="us-central1-docker.pkg.dev/cssfinder-gilbert/cssfinder-gilbert-repo/flask-app"
-          docker build -t "${IMAGE_URI}:${{ github.sha }}" -t "${IMAGE_URI}:latest" .
-          docker push "${IMAGE_URI}:${{ github.sha }}"
-          docker push "${IMAGE_URI}:latest"
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: cssfinder
+          region: us-central1
+          image: us-central1-docker.pkg.dev/cssfinder-gilbert/cssfinder-gilbert-repo/flask-app:${{ github.sha }}
+          flags: '--allow-unauthenticated'
