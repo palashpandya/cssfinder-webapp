@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSSFINDER — Theory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\(', right: '\\)', display: false}
+            ]
+        });"></script>
+</head>
+<body>
+
+<button id="dark-mode-toggle" aria-label="Toggle dark mode">🌙</button>
+
+<nav class="site-nav">
+    <a href="/" class="nav-link">App</a>
+    <a href="/theory" class="nav-link nav-link--active">Theory</a>
+</nav>
+
+<div class="theory-container">
+
+    <header class="site-header">
+        <h1>Theory</h1>
+        <p class="subtitle">The mathematics behind CSSFINDER</p>
+    </header>
+
+    <div class="accordion">
+
+        <!-- 1 ─────────────────────────────────────────────────── -->
+        <div class="accordion-item is-open">
+            <button class="accordion-header" aria-expanded="true">
+                <span>Quantum States and Density Matrices</span>
+                <svg class="accordion-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>
+            </button>
+            <div class="accordion-body">
+                <div class="prose">
+                    <p>
+                        A quantum state of a finite-dimensional system is described by a <em>density matrix</em>
+                        \(\rho\), a positive semi-definite operator on a Hilbert space \(\mathcal{H}\) with
+                        unit trace: \(\rho \geq 0\), \(\operatorname{Tr}[\rho] = 1\).
+                        Pure states satisfy \(\rho^2 = \rho\); mixed states satisfy \(\operatorname{Tr}[\rho^2] < 1\).
+                    </p>
+                    <p>
+                        For a bipartite system with subsystems \(A\) and \(B\) of dimensions \(d_A\) and \(d_B\),
+                        the full Hilbert space is \(\mathcal{H} = \mathcal{H}_A \otimes \mathcal{H}_B\).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 ─────────────────────────────────────────────────── -->
+        <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+                <span>Separability and Entanglement</span>
+                <svg class="accordion-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>
+            </button>
+            <div class="accordion-body">
+                <div class="prose">
+                    <p>
+                        A state \(\rho_{AB}\) is <strong>separable</strong> if it can be written as a convex
+                        combination of pure product states:
+                    </p>
+                    <div class="eq-block">
+                        $$\rho_{\mathrm{sep}} = \sum_i p_i \, \rho_i^A \otimes \rho_i^B, \qquad p_i \geq 0,\; \sum_i p_i = 1.$$
+                    </div>
+                    <p>
+                        States that cannot be written in this form are <strong>entangled</strong>. The set of
+                        separable states \(\mathcal{S}\) is convex and compact, which makes it amenable to
+                        geometric optimization methods. For multipartite systems the same definition extends:
+                        a state is fully separable if it decomposes into a mixture of fully product states
+                        \(\rho_i^{(1)} \otimes \cdots \otimes \rho_i^{(N)}\).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 ─────────────────────────────────────────────────── -->
+        <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+                <span>Hilbert-Schmidt Distance</span>
+                <svg class="accordion-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>
+            </button>
+            <div class="accordion-body">
+                <div class="prose">
+                    <p>
+                        The <strong>Hilbert-Schmidt distance</strong> between two density matrices
+                        \(\rho_0\) and \(\rho_1\) is defined via the Hilbert-Schmidt (Frobenius) inner product
+                        on the space of operators:
+                    </p>
+                    <div class="eq-block">
+                        $$D^2(\rho_0,\,\rho_1) = \operatorname{Tr}\!\left[(\rho_0 - \rho_1)^2\right].$$
+                    </div>
+                    <p>
+                        It is invariant under unitary conjugation —
+                        \(\operatorname{Tr}[(UAU^\dagger)(UAU^\dagger)^\dagger] = \operatorname{Tr}[AA^\dagger]\) —
+                        which makes it well-suited to quantum state space geometry.
+                        While it does not satisfy all axioms of a formal entanglement measure, it provides a
+                        computationally efficient proxy: the closer \(\rho_0\) is to \(\mathcal{S}\), the less
+                        entangled it is in a geometric sense.
+                    </p>
+
+                    <h3>Closest Separable State</h3>
+                    <p>
+                        The <strong>Closest Separable State</strong> (CSS) of a density matrix \(\rho_0\) is
+                        the separable state \(\rho_1^* \in \mathcal{S}\) that minimises the Hilbert-Schmidt
+                        distance:
+                    </p>
+                    <div class="eq-block">
+                        $$\rho_1^* = \operatorname*{arg\,min}_{\rho_1 \in \mathcal{S}} \; D^2(\rho_0,\,\rho_1).$$
+                    </div>
+                    <p>
+                        The squared distance \(D^2(\rho_0, \rho_1^*)\) quantifies how far \(\rho_0\) lies from
+                        the separable set. For a maximally entangled \(d\)-dimensional bipartite state
+                        \(|\phi_d\rangle = \frac{1}{\sqrt{d}}\sum_{i=0}^{d-1}|i,i\rangle\), the CSS is a
+                        Werner state and the exact value is known analytically:
+                    </p>
+                    <div class="eq-block">
+                        $$D^2\!\left(|\phi_d\rangle\langle\phi_d|,\,\mathcal{S}\right) = \frac{d-1}{d+1}.$$
+                    </div>
+
+                    <h3>Entanglement Witnesses</h3>
+                    <p>
+                        Given the CSS \(\rho_1^*\), one can construct an <strong>entanglement witness</strong>
+                        operator:
+                    </p>
+                    <div class="eq-block">
+                        $$W_{\rho_0} = (\rho_0 - \rho_1^*) - \max_{|\phi\rangle \in \mathcal{S}} \langle\phi|(\rho_0 - \rho_1^*)|\phi\rangle \cdot \mathbf{I}.$$
+                    </div>
+                    <p>
+                        Any separable state \(\sigma\) satisfies \(\operatorname{Tr}[W_{\rho_0}\,\sigma] \geq 0\),
+                        while \(\operatorname{Tr}[W_{\rho_0}\,\rho_0] < 0\) certifies entanglement of \(\rho_0\).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 ─────────────────────────────────────────────────── -->
+        <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+                <span>Gilbert's Algorithm</span>
+                <svg class="accordion-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>
+            </button>
+            <div class="accordion-body">
+                <div class="prose">
+                    <p>
+                        Gilbert's algorithm is a classical method for finding the nearest point in a convex set
+                        to a given query point. CSSFINDER adapts it to the space of density matrices, iteratively
+                        building a separable state that converges toward \(\rho_1^*\).
+                    </p>
+
+                    <h3>Preselection criterion</h3>
+                    <p>
+                        A random pure product state \(\rho_2\) is a useful candidate only if it lies on the
+                        same side of the current tangent hyperplane as \(\rho_0\). This is checked via:
+                    </p>
+                    <div class="eq-block">
+                        $$\operatorname{Tr}\!\left[(\rho_2 - \rho_1)(\rho_0 - \rho_1)\right] > 0.$$
+                    </div>
+                    <p>
+                        Geometrically, this ensures the angle between \(\rho_0 - \rho_1\) and \(\rho_2 - \rho_1\)
+                        does not exceed \(\pi/2\). Candidates failing this test are discarded without an
+                        expensive minimisation step.
+                    </p>
+
+                    <h3>Algorithm steps</h3>
+                    <ul class="algo-steps">
+                        <li>
+                            <span class="step-num">1</span>
+                            <span>Increment the trial counter \(c_t\). Draw a random pure product state
+                            \(\rho_2 = |\psi\rangle\langle\psi|\) with \(|\psi\rangle = |\psi^{(1)}\rangle \otimes \cdots \otimes |\psi^{(N)}\rangle\),
+                            sampled uniformly with respect to the Hilbert-Schmidt measure.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">2</span>
+                            <span>Apply the preselection test. If
+                            \(\operatorname{Tr}[(\rho_2-\rho_1)(\rho_0-\rho_1)] \leq 0\), restart from Step 1.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">3</span>
+                            <span>Symmetrize \(\rho_2\) with respect to any discrete or continuous symmetries
+                            shared by \(\rho_0\) that preserve separability:
+                            \(\rho_2 \leftarrow \frac{1}{k}\sum_{z=0}^{k-1} U^z \rho_2 (U^\dagger)^z\).</span>
+                        </li>
+                        <li>
+                            <span class="step-num">4</span>
+                            <span>Minimize \(D^2(\rho_0,\, p\rho_1 + (1-p)\rho_2)\) over \(p \in [0,1]\). The
+                            optimal mixing parameter is:
+                            \(p^* = \operatorname{clip}\!\left(\frac{\operatorname{Tr}[(\rho_0-\rho_2)(\rho_1-\rho_2)]}{\operatorname{Tr}[(\rho_1-\rho_2)^2]},\, 0,\, 1\right).\)</span>
+                        </li>
+                        <li>
+                            <span class="step-num">5</span>
+                            <span>Update the current approximation: \(\rho_1 \leftarrow p^*\rho_1 + (1-p^*)\rho_2\).
+                            Record the new squared distance \(D^2(\rho_0,\rho_1)\) and increment the success
+                            counter \(c_s\).</span>
+                        </li>
+                        <li>
+                            <span class="step-num">6</span>
+                            <span>Halt when \(c_s\) reaches the iteration limit or \(D^2(\rho_0,\rho_1)\) falls
+                            below the convergence threshold. Otherwise return to Step 1.</span>
+                        </li>
+                    </ul>
+
+                    <h3>Convergence</h3>
+                    <p>
+                        The algorithm is guaranteed to converge because \(\mathcal{S}\) is convex and each
+                        accepted step strictly decreases \(D^2\). In practice the convergence follows an
+                        empirical scaling law: defining \(y_{c_s} = |\ln[D^2_{c_s} - a]|^b\) where
+                        \(a \approx \lim_{c_s\to\infty} D^2\) is the estimated true HSD, the plot of
+                        \(y_{c_s}\) versus \(c_s\) is nearly linear, enabling extrapolation to tight
+                        upper bounds with far fewer iterations than brute-force sampling.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 ─────────────────────────────────────────────────── -->
+        <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+                <span>Implemented States</span>
+                <svg class="accordion-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>
+            </button>
+            <div class="accordion-body">
+                <div class="prose">
+                    <h3>Bell state \(|\Phi^+\rangle\)</h3>
+                    <p>The maximally entangled two-qubit state:</p>
+                    <div class="eq-block">
+                        $$|\Phi^+\rangle = \frac{1}{\sqrt{2}}\left(|00\rangle + |11\rangle\right),
+                        \qquad D^2 = \frac{1}{3}.$$
+                    </div>
+
+                    <h3>GHZ state \(|\mathrm{GHZ}\rangle\)</h3>
+                    <p>The three-qubit Greenberger-Horne-Zeilinger state:</p>
+                    <div class="eq-block">
+                        $$|\mathrm{GHZ}\rangle = \frac{1}{\sqrt{2}}\left(|000\rangle + |111\rangle\right).$$
+                    </div>
+                    <p>
+                        GHZ entanglement is highly non-robust: loss of any one qubit collapses the remaining
+                        two qubits into a fully mixed, separable state. Convergence to the CSS is
+                        substantially slower than for the Bell state.
+                    </p>
+
+                    <h3>W state \(|\mathrm{W}\rangle\)</h3>
+                    <p>The three-qubit W state:</p>
+                    <div class="eq-block">
+                        $$|\mathrm{W}\rangle = \frac{1}{\sqrt{3}}\left(|001\rangle + |010\rangle + |100\rangle\right),
+                        \qquad D^2 \approx 0.4322.$$
+                    </div>
+                    <p>
+                        Unlike GHZ, W-state entanglement is robust under single-qubit loss — the reduced
+                        two-qubit state remains entangled. This structural difference is reflected in the
+                        convergence behaviour of the algorithm.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.accordion -->
+
+    <div class="citation">
+        <strong>Reference:</strong><br>
+        Palash Pandya, Omer Sakarya, Marcin Wieśniak,
+        "Hilbert-Schmidt distance and entanglement witnessing,"
+        <em>Physical Review A</em> <strong>102</strong>, 012409 (2020).<br>
+        Preprint: <a href="https://arxiv.org/abs/1811.06599" target="_blank" rel="noopener">arXiv:1811.06599</a>
+    </div>
+
+</div><!-- /.theory-container -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script>
+    document.querySelectorAll('.accordion-header').forEach(function(header) {
+        header.addEventListener('click', function() {
+            var item = this.closest('.accordion-item');
+            var isOpen = item.classList.contains('is-open');
+            item.classList.toggle('is-open', !isOpen);
+            this.setAttribute('aria-expanded', String(!isOpen));
+        });
+    });
+</script>
+</body>
+</html>

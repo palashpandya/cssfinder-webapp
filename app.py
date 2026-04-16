@@ -11,6 +11,10 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/theory')
+def theory():
+    return render_template('theory.html')
+
 @app.route('/run', methods=['POST'])
 def run():
     data = request.json

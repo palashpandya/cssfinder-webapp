@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function runLogic() {
     // 1. Reference UI elements
     const btn = document.getElementById('run-btn');
-    const state = document.getElementById('state').value;
+    const stateRadio = document.querySelector('input[name="state"]:checked');
+    const state = stateRadio ? stateRadio.value : 'Bell';
     const number = document.getElementById('number').value;
     const trials = document.getElementById('trials').value;
     const resultsDiv = document.getElementById('results');
@@ -46,9 +47,10 @@ function runLogic() {
     const labelTrials = document.getElementById('progress-label-trials');
 
     // 2. UI Feedback: Disable button and show progress bars at 0%
-    btn.innerText = "Processing...";
+    btn.innerText = "Running…";
     btn.disabled = true;
     progressBars.style.display = 'flex';
+    progressBars.classList.add('is-running');
     barItr.style.width = '0%';
     barTrials.style.width = '0%';
     labelItr.innerText = '';
@@ -82,14 +84,15 @@ function runLogic() {
             // 6. Display the Plot
             resPlot.src = `data:image/png;base64,${data.plot}`;
 
-            // 7. Reveal the results section
-            resultsDiv.style.display = 'block';
+            // 7. Reveal the results section via CSS transition
+            resultsDiv.classList.add('results--visible');
 
             // 8. Reset button state
             btn.innerText = "Run Analysis";
             btn.disabled = false;
             barItr.style.width = '100%';
             barTrials.style.width = '100%';
+            progressBars.classList.remove('is-running');
             if (lastProgress) {
                 labelItr.innerText = `${lastProgress.max_iter} / ${lastProgress.max_iter}`;
                 labelTrials.innerText = `${lastProgress.max_trials} / ${lastProgress.max_trials}`;
@@ -102,6 +105,7 @@ function runLogic() {
             alert("Execution failed: " + data.message);
             btn.innerText = "Run Analysis";
             btn.disabled = false;
+            progressBars.classList.remove('is-running');
             progressBars.style.display = 'none';
         }
     };
@@ -112,6 +116,7 @@ function runLogic() {
         alert("Execution failed. Check the console for details.");
         btn.innerText = "Run Analysis";
         btn.disabled = false;
+        progressBars.classList.remove('is-running');
         progressBars.style.display = 'none';
     };
 }

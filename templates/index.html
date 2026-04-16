@@ -3,125 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSSFINDER | Logic Runner</title>
+    <title>CSSFINDER | Closest Separable State</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<button id="dark-mode-toggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
+<button id="dark-mode-toggle" aria-label="Toggle dark mode">🌙</button>
+
+<nav class="site-nav">
+    <a href="/" class="nav-link nav-link--active">App</a>
+    <a href="/theory" class="nav-link">Theory</a>
+</nav>
+
 <div class="container">
-    <h1>CSSFINDER</h1>
-    
+
+    <header class="site-header">
+        <h1>CSSFINDER</h1>
+        <p class="subtitle">Find the Closest Separable State of a quantum density matrix via Gilbert's algorithm</p>
+    </header>
+
     <div class="controls">
-        <div class="input-group">
-            <label for="state">Choose a quantum state:</label>
-            <select id="state">
-                <option value="Bell">Bell state</option>
-                <option value="GHZ">GHZ state</option>
-                <option value="W">W state</option>
-            </select>
+
+        <div>
+            <div class="section-label">Quantum State</div>
+            <div class="state-cards">
+                <div class="state-card">
+                    <input type="radio" name="state" id="state-bell" value="Bell" checked>
+                    <label for="state-bell">
+                        <span class="state-icon">|Φ⁺⟩</span>
+                        <span class="state-name">Bell</span>
+                        <span class="state-desc">Maximally entangled two-qubit state</span>
+                    </label>
+                </div>
+                <div class="state-card">
+                    <input type="radio" name="state" id="state-ghz" value="GHZ">
+                    <label for="state-ghz">
+                        <span class="state-icon">|GHZ⟩</span>
+                        <span class="state-name">GHZ</span>
+                        <span class="state-desc">Greenberger–Horne–Zeilinger three-qubit state</span>
+                    </label>
+                </div>
+                <div class="state-card">
+                    <input type="radio" name="state" id="state-w" value="W">
+                    <label for="state-w">
+                        <span class="state-icon">|W⟩</span>
+                        <span class="state-name">W State</span>
+                        <span class="state-desc">Robust three-qubit entanglement</span>
+                    </label>
+                </div>
+            </div>
         </div>
 
-        <div class="input-group">
-            <label for="number">Number of Iterations:</label>
-            <input type="number" id="number" min="1" max="100" value="50">
-        </div>
-
-        <div class="input-group">
-            <label for="trials">Number of Trials:</label>
-            <input type="number" id="trials" min="1" value="10000">
+        <div class="param-row">
+            <div class="param-field">
+                <label for="number">Iterations</label>
+                <input type="number" id="number" min="1" max="100" value="50">
+            </div>
+            <div class="param-field">
+                <label for="trials">Trials</label>
+                <input type="number" id="trials" min="1" value="10000">
+            </div>
         </div>
 
         <button id="run-btn" onclick="runLogic()">Run Analysis</button>
+
         <div id="progress-bars" style="display: none;">
-            <div class="progress-label">Iterations <span id="progress-label-itr"></span></div>
-            <div class="progress-track">
-                <div id="progress-bar-itr"></div>
+            <div class="progress-row">
+                <div class="progress-label-row">
+                    <span class="progress-label">Iterations</span>
+                    <span class="progress-count" id="progress-label-itr"></span>
+                </div>
+                <div class="progress-track">
+                    <div id="progress-bar-itr"></div>
+                </div>
             </div>
-            <div class="progress-label">Trials <span id="progress-label-trials"></span></div>
-            <div class="progress-track">
-                <div id="progress-bar-trials"></div>
+            <div class="progress-row">
+                <div class="progress-label-row">
+                    <span class="progress-label">Trials</span>
+                    <span class="progress-count" id="progress-label-trials"></span>
+                </div>
+                <div class="progress-track">
+                    <div id="progress-bar-trials"></div>
+                </div>
             </div>
         </div>
+
     </div>
 
-    <div id="results" style="display: none;">
-        <h3>Calculated Value: <span id="res-num" style="color: #3498db;">-</span></h3>
-        
-        <h3>Matrix Output:</h3>
-        <div id="matrix-container">
-            <div id="res-matrix"></div>
-            <button id="download-csv-btn" onclick="downloadMatrixCSV()">Download CSV</button>
+    <div id="results">
+
+        <div class="result-card">
+            <h3>Hilbert-Schmidt Distance</h3>
+            <div class="value-display" id="res-num">—</div>
         </div>
 
-        <h3>Visualization:</h3>
-        <div class="plot-box">
-            <img id="res-plot" src="" alt="Generated Plot">
+        <div class="result-card">
+            <h3>CSS Matrix</h3>
+            <div id="matrix-container">
+                <div id="res-matrix"></div>
+                <button id="download-csv-btn" onclick="downloadMatrixCSV()">Download CSV</button>
+            </div>
         </div>
+
+        <div class="result-card">
+            <h3>Convergence Plot</h3>
+            <div class="plot-box">
+                <img id="res-plot" src="" alt="Convergence plot">
+            </div>
+        </div>
+
     </div>
+
 </div>
 
-<!-- <script>
-    async function runLogic() {
-        const btn = document.getElementById('run-btn');
-        const state = document.getElementById('state').value;
-        const number = document.getElementById('number').value;
-        const resultsDiv = document.getElementById('results');
-
-        // UI feedback
-        btn.innerText = "Processing...";
-        btn.disabled = true;
-
-        try {
-            const response = await fetch('/run', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ state, number })
-            });
-
-            const data = await response.json();
-            
-            // 1. Update the result number
-            document.getElementById('res-num').innerText = data.number;
-
-            // 2. Format and display the matrix as a simple table
-            const matrixDiv = document.getElementById('res-matrix');
-            matrixDiv.innerHTML = formatMatrix(data.matrix);
-
-            // 3. Update the Plot image
-            document.getElementById('res-plot').src = "data:image/png;base64," + data.plot;
-
-            // Show the results section
-            resultsDiv.style.display = 'block';
-
-        } catch (error) {
-            console.error("Error running find_css:", error);
-            alert("Something went wrong with the backend call.");
-        } finally {
-            btn.innerText = "Run Analysis";
-            btn.disabled = false;
-        }
-    }
-
-    // Helper function to turn a list-of-lists into an HTML table
-    function formatMatrix(matrix) {
-        if (!matrix || !matrix.length) return "No matrix data.";
-        
-        let table = '<table style="width:100%; border-collapse: collapse; text-align: center;">';
-        matrix.forEach(row => {
-            table += '<tr>';
-            row.forEach(cell => {
-                // Round to 2 decimal places if it's a float
-                const val = typeof cell === 'number' ? cell.toFixed(2) : cell;
-                table += `<td style="border: 1px solid #ddd; padding: 8px;">${val}</td>`;
-            });
-            table += '</tr>';
-        });
-        table += '</table>';
-        return table;
-    }
-</script> -->
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
 </body>
 </html>
