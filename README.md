@@ -4,7 +4,7 @@ A Flask web app that finds the **Closest Separable State (CSS)** of a quantum de
 
 ## What it does
 
-Given a quantum density matrix (Bell, GHZ, or W state), CSSFINDER computes the nearest separable state and returns the Hilbert-Schmidt distance along with a convergence plot. This is useful for quantifying entanglement in mixed quantum states.
+Given a quantum density matrix (Bell, GHZ, or W state), CSSFINDER computes the closest separable state with respect to the Hilbert-Schmidt distance along with a convergence plot. This is useful for quantifying entanglement in mixed quantum states.
 
 ## Running locally
 
