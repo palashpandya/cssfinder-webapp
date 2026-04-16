@@ -279,7 +279,7 @@ body.dark-mode::before {
     font-family: 'Inter', sans-serif;
     cursor: pointer;
     transition: opacity var(--transition), transform 0.15s ease, box-shadow var(--transition);
-    box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 35%, transparent);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 25%, transparent);
     letter-spacing: 0.01em;
     position: relative;
     overflow: hidden;
@@ -296,7 +296,7 @@ body.dark-mode::before {
 #run-btn:hover:not(:disabled) {
     opacity: 0.92;
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent);
+    box-shadow: 0 6px 10px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 #run-btn:active:not(:disabled) {
